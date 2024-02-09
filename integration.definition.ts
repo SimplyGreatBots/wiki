@@ -1,12 +1,16 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
-import { name } from './package.json'
+import { IntegrationDefinition } from '@botpress/sdk'
+import { INTEGRATION_NAME } from './src/const'
+import z from 'zod'
 
 export default new IntegrationDefinition({
-  name,
+  name: INTEGRATION_NAME,
   version: '0.2.0',
-  channels: {
-    channel: {
-      messages: { ...messages.defaults },
-    },
+  description: 'This integration allows you to use Wikipedia.',
+  icon: 'icon.svg',
+  configuration: {
+    schema: z.object({})
   },
+  channels: {},
+  actions: {
+  }
 })
