@@ -16,10 +16,13 @@
     "@botpress/client": "0.11.0",
     "@botpress/sdk": "0.5.10",
     "axios": "^1.6.7",
+    "jsdom": "^24.0.0",
+    "query-string": "^8.2.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@botpress/cli": "^0.5.2",
+    "@types/jsdom": "^21.1.6",
     "@types/node": "^18.19.15",
     "ts-node": "^10.9.2",
     "typescript": "^4.9.5"
