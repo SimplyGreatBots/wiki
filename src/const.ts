@@ -16,7 +16,7 @@ export const searchContentSchema = z.object({
       width: z.number().optional().nullable(),
       height: z.number().optional().nullable(),
       duration: z.number().optional().nullable(),
-      url: z.string().optional().nullable(),
+      html_url: z.string().optional().nullable(),
     }).optional().nullable(),
   })),
 })
@@ -36,3 +36,28 @@ export const wikiPageSchema = z.object({
   }),
   html_url: z.string()
 })
+
+export const wikiPageEmpty = { 
+  id: 0,
+  key: '',
+  title: '',
+  latest: {
+    id: 0,
+    timestamp: '',
+  },
+  content_model: null,
+  license: {
+    url: '',
+    title: null
+  },
+  html_url: ''
+}
+
+export type BotLogger = {
+  forBot: () => {
+    info: (message?: any, ...optionalParams: any[]) => void;
+    warn: (message?: any, ...optionalParams: any[]) => void;
+    error: (message?: any, ...optionalParams: any[]) => void;
+    debug: (message?: any, ...optionalParams: any[]) => void;
+  }
+}
