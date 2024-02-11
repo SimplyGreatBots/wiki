@@ -2,7 +2,7 @@ import * as botpress from '.botpress'
 import axios from 'axios';
 import { searchContentSchema, wikiPageSchema, wikiPageEmpty, BotLogger } from 'src/const'
 
-const baseUrl = 'https://api.wikimedia.org/core/v1'
+const baseUrl = 'https://api.wikimedia.org/core/v1/'
 
 function handleAxiosError(error: unknown, logger: BotLogger) {
   if (axios.isAxiosError(error)) {
