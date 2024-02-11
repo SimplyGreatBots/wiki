@@ -62,3 +62,17 @@ export const getWikiPage: botpress.IntegrationProps['actions']['getWikiPage'] = 
     return wikiPageEmpty
     }
 }
+
+export const getWikiPageHtml: botpress.IntegrationProps['actions']['getWikiPageHtml'] = async ({ input, logger }) => {
+const url = `${baseUrl}${input.project}/${input.language}/page/${input.title}/html`;
+
+  try {
+    const response = await axios.get(url)
+    const rawData = response.data
+    return { htmlContent: rawData }
+
+  } catch (error) {
+    handleAxiosError(error, logger)
+    return { htmlContent: '' }
+  }
+}

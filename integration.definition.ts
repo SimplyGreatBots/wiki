@@ -28,7 +28,7 @@ export default new IntegrationDefinition({
       },
     },
     getWikiPage: {
-      title: 'Get Wiki Page',
+      title: 'Get Wiki Page URL',
       description: 'Returns a wiki page from a title.',
       input: {
         schema: z.object({
@@ -40,6 +40,23 @@ export default new IntegrationDefinition({
       output: {
         schema: wikiPageSchema
       }
-    }
+    },
+    getWikiPageHtml: {
+      title: 'Get Wiki Page Content',
+      description: 'Returns the latest content of a wiki page in HTML format from a specified Wikimedia project.',
+      input: {
+        schema: z.object({
+          project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
+          language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
+          title: z.string().describe('Wiki page title.'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          htmlContent: z.string().describe('HTML content of the wiki page.'),
+        }),
+      },
+    },
+  }
   }
 })
