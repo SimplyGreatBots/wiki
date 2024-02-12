@@ -28,7 +28,7 @@ export default new IntegrationDefinition({
       },
     },
     getWikiPage: {
-      title: 'Get Wiki Page URL',
+      title: 'Get Wiki Page',
       description: 'Returns a wiki page from a title.',
       input: {
         schema: z.object({
@@ -41,9 +41,9 @@ export default new IntegrationDefinition({
         schema: wikiPageSchema
       }
     },
-    getWikiPageHtml: {
+    getWikiPageContent: {
       title: 'Get Wiki Page Content',
-      description: 'Returns the latest content of a wiki page in HTML format from a specified Wikimedia project.',
+      description: 'Returns the text content (headers and paragraphs) of a wiki page from a specified Wikimedia project.',
       input: {
         schema: z.object({
           project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
@@ -53,9 +53,13 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          htmlContent: z.string().describe('HTML content of the wiki page.'),
+          rows: z.array(z.object({
+            Page: z.string().describe('Title of the wiki page'),
+            Header: z.string().describe('Header text preceding the paragraph'),
+            Content: z.string().describe('Text content of the paragraph under the header')
+          })).describe('Array of objects, each representing a row with page title, header, and paragraph text')
         }),
       },
-    },
+    }
   }
 })
