@@ -1,7 +1,7 @@
 import * as botpress from '.botpress'
 import * as cheerio from 'cheerio'
 import axios from 'axios'
-import { searchContentSchema, wikiPageSchema, wikiPageEmpty, BotLogger, TableRow } from 'src/const'
+import { searchContentOutputSchema, pageOutputSchema, wikiPageEmpty, BotLogger, TableRow } from 'src/const'
 
 const baseUrl = 'https://api.wikimedia.org/core/v1/'
 
@@ -23,26 +23,26 @@ function handleAxiosError(error: unknown, logger: BotLogger) {
   }
 }
 
-export const searchWikiPages: botpress.IntegrationProps['actions']['searchWikiPages'] = async ({ input, logger }) => {
+export const searchWikiPages: botpress.IntegrationProps['actions']['searchPages'] = async ({ input, logger }) => {
   const url = `${baseUrl}${input.project}/${input.language}/search/page?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
   try {
     const response = await axios.get(url)
     const rawData = response.data
 
-    const validationResult = searchContentSchema.safeParse(rawData)
+    const validationResult = searchContentOutputSchema.safeParse(rawData)
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return searchContentSchema.parse({ pages: [] })
+      return searchContentOutputSchema.parse({ pages: [] })
     }
     return validationResult.data
 
   } catch (error) {
     handleAxiosError(error, logger)
-    return searchContentSchema.parse({ pages: [] })
+    return searchContentOutputSchema.parse({ pages: [] })
   }
 }
 
-export const getWikiPage: botpress.IntegrationProps['actions']['getWikiPage'] = async ({ input, logger }) => {
+export const getWikiPage: botpress.IntegrationProps['actions']['getPage'] = async ({ input, logger }) => {
 
   const url = `${baseUrl}${input.project}/${input.language}/page/${input.title}/bare`;
 
@@ -50,7 +50,7 @@ export const getWikiPage: botpress.IntegrationProps['actions']['getWikiPage'] = 
     const response = await axios.get(url)
     const rawData = response.data
 
-    const validationResult = wikiPageSchema.safeParse(rawData)
+    const validationResult = pageOutputSchema.safeParse(rawData)
 
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error);

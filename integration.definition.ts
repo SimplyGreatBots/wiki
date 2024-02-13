@@ -1,9 +1,9 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { INTEGRATION_NAME, searchContentSchema, wikiPageSchema } from './src/const'
+import * as constants from './src/const'
 import z from 'zod'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
+  name: constants.INTEGRATION_NAME,
   version: '0.2.0',
   description: 'This integration allows you to use Wikipedia.',
   icon: 'icon.svg',
@@ -12,52 +12,35 @@ export default new IntegrationDefinition({
   },
   channels: {},
   actions: {
-    searchWikiPages: {
-      title: 'Search Wiki Pages',
-      description: 'Searches wiki pages for the given search terms and returns matching pages.',
+    searchPages: {
+      title: 'Search Pages',
+      description: 'Searches wikipedia for pages containing the given search terms.',
       input: {
-        schema: z.object({
-          project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
-          language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
-          q: z.string().describe('Search terms.'),
-          limit: z.number().min(1).max(100).default(50).optional().describe('Maximum number of search results to return. Default is 50.')
-        }),
+        schema: constants.searchContentInputSchema
       },
       output: {
-        schema: searchContentSchema
+        schema: constants.searchContentOutputSchema
       },
     },
-    getWikiPage: {
-      title: 'Get Wiki Page',
+    getPage: {
+      title: 'Get Page',
       description: 'Returns a wiki page from a title.',
       input: {
-        schema: z.object({
-          project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
-          language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
-          title: z.string().describe('Title of the wiki page. Must be exact name.'),
-        })
+        schema: constants.pageInputSchema
       },
       output: {
-        schema: wikiPageSchema
+        schema: constants.pageOutputSchema
       }
     },
     getPageContent: {
       title: 'Get Page Content',
       description: 'Returns the text content (headers and paragraphs) of a wiki page from a specified Wikimedia project.',
       input: {
-        schema: z.object({
-          project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
-          language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
-          title: z.string().describe('Title of the Wiki page.'),
-        }),
+        schema: constants.pageInputSchema
       },
       output: {
         schema: z.object({
-          content: z.array(z.object({
-            Page: z.string().describe('Title of the wiki page'),
-            Header: z.string().describe('Header text preceding the paragraph'),
-            Content: z.string().describe('Text content of the paragraph under the header')
-          }))
+          content: z.array(constants.tableRowSchema)
         }),
       },
     }
