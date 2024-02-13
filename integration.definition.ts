@@ -42,13 +42,13 @@ export default new IntegrationDefinition({
       }
     },
     getPageContent: {
-      title: 'Get Wiki Page Content',
+      title: 'Get Page Content',
       description: 'Returns the text content (headers and paragraphs) of a wiki page from a specified Wikimedia project.',
       input: {
         schema: z.object({
           project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
           language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
-          title: z.string().describe('Wiki page title.'),
+          title: z.string().describe('Title of the Wiki page.'),
         }),
       },
       output: {
@@ -57,7 +57,7 @@ export default new IntegrationDefinition({
             Page: z.string().describe('Title of the wiki page'),
             Header: z.string().describe('Header text preceding the paragraph'),
             Content: z.string().describe('Text content of the paragraph under the header')
-          })).describe('Array of objects, each representing a row with page title, header, and paragraph text')
+          }))
         }),
       },
     }
