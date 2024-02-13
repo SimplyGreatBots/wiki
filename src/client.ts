@@ -95,9 +95,9 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
   }
 }
 
-const processWikiContent = (pageTitle: string, htmlContent: string): constants.TableRow[] => {
+const processWikiContent = (pageTitle: string, htmlContent: string): constants.TWikiParagraph[] => {
   const $ = cheerio.load(htmlContent)
-  const tableRows: constants.TableRow[] = []
+  const content: constants.TWikiParagraph[] = []
   let currentHeader = ''
 
   $('h1, h2, h3, h4, h5, h6, p').each((_, el) => {
@@ -105,19 +105,15 @@ const processWikiContent = (pageTitle: string, htmlContent: string): constants.T
       // New header found, update the currentHeader variable
       currentHeader = $(el).text()
     } else {
-      // Paragraph element, create rows
+      // Paragraph element, directly create a row without chunking
       const paragraphText = $(el).text()
-      const maxChars = 3500 - (pageTitle.length + currentHeader.length + 100); // Adjust for overhead
-      for (let i = 0; i < paragraphText.length; i += maxChars) {
-        const chunk = paragraphText.substring(i, i + maxChars)
-        tableRows.push({
-          Page: pageTitle,
-          Header: currentHeader,
-          Content: chunk,
-        })
-      }
+      content.push({
+        Page: pageTitle,
+        Header: currentHeader,
+        Content: paragraphText,
+      })
     }
   })
 
-  return tableRows // Return the accumulated rows after processing
+  return content
 }

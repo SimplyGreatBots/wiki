@@ -38,7 +38,7 @@ export const tableRowSchema = z.object({
   Header: z.string(),
   Content: z.string(),
 })
-export type TableRow = {
+export type TWikiParagraph = {
   Page: string
   Header: string
   Content: string
