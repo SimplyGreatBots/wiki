@@ -1,7 +1,7 @@
 import * as botpress from '.botpress'
 import * as cheerio from 'cheerio'
 import axios from 'axios'
-import { searchContentSchema, wikiPageSchema, wikiPageEmpty, BotLogger } from 'src/const'
+import { searchContentSchema, wikiPageSchema, wikiPageEmpty, BotLogger, TableRow } from 'src/const'
 
 const baseUrl = 'https://api.wikimedia.org/core/v1/'
 
@@ -64,68 +64,60 @@ export const getWikiPage: botpress.IntegrationProps['actions']['getWikiPage'] = 
     }
 }
 
-export const getWikiPageContent: botpress.IntegrationProps['actions']['getWikiPageContent'] = async ({ input, logger }) => {
+export const getPageContent: botpress.IntegrationProps['actions']['getPageContent'] = async ({ input, logger }) => {
   // Validate input parameters
   if (!input.project || !input.language || !input.title) {
     logger.forBot().error('Missing required input parameters');
-    return { rows: [] }; // Return an empty array to indicate no content was processed
+    return { content: [] }; // Return an empty array to indicate no content was processed
   }
 
+  // Prepare API request
   const url = `https://${input.language}.${input.project}.org/w/api.php`;
-
-  // Prepare parameters for the API request
   const params = {
     action: 'parse',
     page: input.title,
     format: 'json',
-  };
+  }
 
   try {
-    // Make the API request using the dynamically constructed base URL
     const response = await axios.get(url, { params });
+
     // Extract HTML content from the response
     const htmlContent = response.data.parse?.text['*'] || '';
 
     // Process the HTML content to format it as described (rows with Page, Header, Paragraph)
-    const rows = processWikiContent(input.title, htmlContent); // Use the title as the Page value
+    const content = processWikiContent(input.title, htmlContent)
+    return { content }
 
-    return { rows }; // Return the processed rows
   } catch (error) {
     handleAxiosError(error, logger);
-    return { rows: [] }; // Return an empty array in case of an error
+    return { content: [] }
   }
 }
 
-// Represents a row in your table
-interface TableRow {
-  Page: string;
-  Header: string;
-  Content: string;
-}
-
 const processWikiContent = (pageTitle: string, htmlContent: string): TableRow[] => {
-  const $ = cheerio.load(htmlContent);
-  const rows: TableRow[] = [];
-  let currentHeader = '';
+  const $ = cheerio.load(htmlContent)
+  const tableRows: TableRow[] = []
+  let currentHeader = ''
 
   $('h1, h2, h3, h4, h5, h6, p').each((_, el) => {
     if ($(el).is('h1, h2, h3, h4, h5, h6')) {
       // New header found, update the currentHeader variable
-      currentHeader = $(el).text();
+      currentHeader = $(el).text()
     } else {
       // Paragraph element, create rows
-      const paragraphText = $(el).text();
+      const paragraphText = $(el).text()
       const maxChars = 3500 - (pageTitle.length + currentHeader.length + 100); // Adjust for overhead
       for (let i = 0; i < paragraphText.length; i += maxChars) {
-        const chunk = paragraphText.substring(i, i + maxChars);
-        rows.push({
+        const chunk = paragraphText.substring(i, i + maxChars)
+        tableRows.push({
           Page: pageTitle,
           Header: currentHeader,
           Content: chunk,
-        });
+        })
       }
     }
-  });
+  })
 
-  return rows; // Return the accumulated rows after processing
+  return tableRows // Return the accumulated rows after processing
 }

@@ -41,7 +41,7 @@ export default new IntegrationDefinition({
         schema: wikiPageSchema
       }
     },
-    getWikiPageContent: {
+    getPageContent: {
       title: 'Get Wiki Page Content',
       description: 'Returns the text content (headers and paragraphs) of a wiki page from a specified Wikimedia project.',
       input: {
@@ -53,7 +53,7 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          rows: z.array(z.object({
+          content: z.array(z.object({
             Page: z.string().describe('Title of the wiki page'),
             Header: z.string().describe('Header text preceding the paragraph'),
             Content: z.string().describe('Text content of the paragraph under the header')

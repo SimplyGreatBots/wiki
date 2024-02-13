@@ -1,5 +1,5 @@
 import * as botpress from '.botpress'
-import { searchWikiPages, getWikiPage, getWikiPageContent } from 'src/client'
+import { searchWikiPages, getWikiPage, getPageContent } from 'src/client'
 
 export default new botpress.Integration({
   register: async () => { },
@@ -7,7 +7,7 @@ export default new botpress.Integration({
   actions: {
     searchWikiPages,
     getWikiPage,
-    getWikiPageContent
+    getPageContent
   },
   channels: {},
   handler: async () => { },

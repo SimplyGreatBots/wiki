@@ -61,3 +61,9 @@ export type BotLogger = {
     debug: (message?: any, ...optionalParams: any[]) => void;
   }
 }
+
+export type TableRow = {
+  Page: string;
+  Header: string;
+  Content: string;
+}
