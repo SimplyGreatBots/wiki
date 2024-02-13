@@ -1,11 +1,11 @@
 import * as botpress from '.botpress'
 import * as cheerio from 'cheerio'
+import * as constants from './const'
 import axios from 'axios'
-import { searchContentOutputSchema, pageOutputSchema, wikiPageEmpty, BotLogger, TableRow } from 'src/const'
 
 const baseUrl = 'https://api.wikimedia.org/core/v1/'
 
-function handleAxiosError(error: unknown, logger: BotLogger) {
+function handleAxiosError(error: unknown, logger: constants.BotLogger) {
   if (axios.isAxiosError(error)) {
     if (error.response) {
       // HTTP response status code is in the 2xx range
@@ -23,26 +23,26 @@ function handleAxiosError(error: unknown, logger: BotLogger) {
   }
 }
 
-export const searchWikiPages: botpress.IntegrationProps['actions']['searchPages'] = async ({ input, logger }) => {
+export const findPages: botpress.IntegrationProps['actions']['findPages'] = async ({ input, logger }) => {
   const url = `${baseUrl}${input.project}/${input.language}/search/page?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
   try {
     const response = await axios.get(url)
     const rawData = response.data
 
-    const validationResult = searchContentOutputSchema.safeParse(rawData)
+    const validationResult = constants.searchContentOutputSchema.safeParse(rawData)
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return searchContentOutputSchema.parse({ pages: [] })
+      return constants.searchContentOutputSchema.parse({ pages: [] })
     }
     return validationResult.data
 
   } catch (error) {
     handleAxiosError(error, logger)
-    return searchContentOutputSchema.parse({ pages: [] })
+    return constants.searchContentOutputSchema.parse({ pages: [] })
   }
 }
 
-export const getWikiPage: botpress.IntegrationProps['actions']['getPage'] = async ({ input, logger }) => {
+export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({ input, logger }) => {
 
   const url = `${baseUrl}${input.project}/${input.language}/page/${input.title}/bare`;
 
@@ -50,17 +50,17 @@ export const getWikiPage: botpress.IntegrationProps['actions']['getPage'] = asyn
     const response = await axios.get(url)
     const rawData = response.data
 
-    const validationResult = pageOutputSchema.safeParse(rawData)
+    const validationResult = constants.pageOutputSchema.safeParse(rawData)
 
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error);
-      return wikiPageEmpty
+      return constants.wikiPageEmpty
     }
     return validationResult.data
 
   } catch (error) {
     handleAxiosError(error, logger)
-    return wikiPageEmpty
+    return constants.wikiPageEmpty
     }
 }
 
@@ -95,9 +95,9 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
   }
 }
 
-const processWikiContent = (pageTitle: string, htmlContent: string): TableRow[] => {
+const processWikiContent = (pageTitle: string, htmlContent: string): constants.TableRow[] => {
   const $ = cheerio.load(htmlContent)
-  const tableRows: TableRow[] = []
+  const tableRows: constants.TableRow[] = []
   let currentHeader = ''
 
   $('h1, h2, h3, h4, h5, h6, p').each((_, el) => {

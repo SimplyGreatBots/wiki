@@ -12,8 +12,8 @@ export default new IntegrationDefinition({
   },
   channels: {},
   actions: {
-    searchPages: {
-      title: 'Search Pages',
+    findPages: {
+      title: 'Find Pages',
       description: 'Searches wikipedia for pages containing the given search terms.',
       input: {
         schema: constants.searchContentInputSchema

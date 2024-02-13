@@ -1,12 +1,12 @@
 import * as botpress from '.botpress'
-import { searchWikiPages, getWikiPage, getPageContent } from 'src/client'
+import { findPages, getPage, getPageContent } from 'src/client'
 
 export default new botpress.Integration({
   register: async () => { },
   unregister: async () => { },
   actions: {
-    searchWikiPages,
-    getWikiPage,
+    findPages,
+    getPage,
     getPageContent
   },
   channels: {},
