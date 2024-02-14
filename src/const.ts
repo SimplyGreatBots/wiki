@@ -88,9 +88,9 @@ export const wikiPageEmpty = {
 // Featured Content
 export const featuredInputSchema = z.object({
   language: z.string().describe('Language code, e.g., ar (Arabic), en (English), es (Spanish).'),
-  YYYY: z.string().regex(/^\d{4}$/, 'Four-digit year'),
-  MM: z.string().regex(/^(0[1-9]|1[0-2])$/, 'Month of the year, 01 through 12'),
-  DD: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, 'Day of the month, 01 through 31')
+  year: z.string().regex(/^\d{4}$/, 'Four-digit year').describe('Four Digit Year YYYY'),
+  month: z.string().regex(/^(0[1-9]|1[0-2])$/, 'Month of the year, 01 through 12').describe('Two digit Month MM'),
+  day: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, 'Day of the month, 01 through 31').describe('Two digit Day DD')
 })
 
 // Featured Article

@@ -73,10 +73,10 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
 }
 export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeaturedArticle'] = async ({ input, logger }) => {
 
-  const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/featured/${input.YYYY}/${input.MM}/${input.DD}`
+  const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/featured/${input.year}/${input.month}/${input.day}`
 
-  if (!input.DD || !input.MM || !input.YYYY || !input.language) {
-    logger.forBot().error('Missing required input parameters')
+  if (!input.day || !input.month || !input.year || !input.language) {
+    logger.forBot().warn('Missing required input parameters')
     return constants.tfaEmpty
   }
 
@@ -84,7 +84,7 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
     const response = await axios.get(url)
 
     if (response.status < 200 || response.status > 299) {
-      logger.forBot().error(`HTTP error! Status: ${response.status}`)
+      logger.forBot().warn(`HTTP error! Status: ${response.status}`)
       return constants.tfaEmpty
     }
 

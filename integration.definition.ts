@@ -46,7 +46,7 @@ export default new IntegrationDefinition({
     },
     getFeaturedArticle: {
       title: 'Get Featured Article',
-      description: 'Returns the featured article of the day.',
+      description: 'Returns the featured article of a given day.',
       input: {
         schema: constants.featuredInputSchema
       },
