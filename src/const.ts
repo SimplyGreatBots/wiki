@@ -138,3 +138,57 @@ export const tfaSchema = z.object({
   extract_html: z.string(),
   normalizedtitle: z.string()
 })
+export const tfaEmpty = {
+  type: 'standard',
+  namespace: {
+    id: 0,
+    text: '',
+  },
+  wikibase_item: '',
+  articleUrlSchema: {
+  page: '',
+    revisions: '',
+    edit: '',
+    talk: '',
+  },
+  titles: {
+    canonical: '',
+    normalized: '',
+    display: '',
+  },
+  pageid: 0,
+  thumbnail: {
+    source: '',
+    width: 0,
+    height: 0,
+  },
+  originalimage: {
+    source: '',
+    width: 0,
+    height: 0,
+  },
+  lang: '',
+  dir: '',
+  revision: '',
+  tid: '',
+  timestamp: '',
+  description: '',
+  description_source: '',
+  content_urls: {
+    desktop: {
+      page: '',
+      revisions: '',
+      edit: '',
+      talk: '',
+    },
+    mobile: {
+      page: '',
+      revisions: '',
+      edit: '',
+      talk: '',
+    },
+  },
+  extract: '',
+  extract_html: '',
+  normalizedtitle: '',
+}
