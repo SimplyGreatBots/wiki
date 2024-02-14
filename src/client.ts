@@ -9,17 +9,17 @@ function handleAxiosError(error: unknown, logger: constants.BotLogger) {
   if (axios.isAxiosError(error)) {
     if (error.response) {
       // HTTP response status code is in the 2xx range
-      logger.forBot().error(`Error: ${error.response.status} ${error.response.statusText}`);
+      logger.forBot().error(`Error: ${error.response.status} ${error.response.statusText}`)
     } else if (error.request) {
       // The request was made but no response was received
-      logger.forBot().error('No response received', error.request);
+      logger.forBot().error('No response received', error.request)
     } else {
       // Something happened in setting up the request that triggered an Error
-      logger.forBot().error('Request Failed', error.message);
+      logger.forBot().error('Request Failed', error.message)
     }
   } else {
     // For non-Axios errors
-    logger.forBot().error('Operation Failed', error instanceof Error ? error.message : String(error));
+    logger.forBot().error('Operation Failed', error instanceof Error ? error.message : String(error))
   }
 }
 
@@ -44,7 +44,7 @@ export const findPages: botpress.IntegrationProps['actions']['findPages'] = asyn
 
 export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({ input, logger }) => {
 
-  const url = `${baseUrl}${input.project}/${input.language}/page/${input.title}/bare`;
+  const url = `${baseUrl}${input.project}/${input.language}/page/${input.title}/bare`
 
   try {
     const response = await axios.get(url)
@@ -53,7 +53,7 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
     const validationResult = constants.pageOutputSchema.safeParse(rawData)
 
     if (!validationResult.success) {
-      logger.forBot().error('Validation Failed:', validationResult.error);
+      logger.forBot().error('Validation Failed:', validationResult.error)
       return constants.wikiPageEmpty
     }
     return validationResult.data
@@ -67,7 +67,7 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
 export const getPageContent: botpress.IntegrationProps['actions']['getPageContent'] = async ({ input, logger }) => {
   // Validate input parameters
   if (!input.project || !input.language || !input.title) {
-    logger.forBot().error('Missing required input parameters');
+    logger.forBot().error('Missing required input parameters')
     return { content: [] }; // Return an empty array to indicate no content was processed
   }
 
@@ -80,18 +80,39 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
   }
 
   try {
-    const response = await axios.get(url, { params });
+    const response = await axios.get(url, { params })
 
     // Extract HTML content from the response
-    const htmlContent = response.data.parse?.text['*'] || '';
+    const htmlContent = response.data.parse?.text['*'] || ''
 
     // Process the HTML content to format it as described (rows with Page, Header, Paragraph)
     const content = processWikiContent(input.title, htmlContent)
     return { content }
 
   } catch (error) {
-    handleAxiosError(error, logger);
+    handleAxiosError(error, logger)
     return { content: [] }
+  }
+}
+
+export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeaturedArticle'] = async ({ input, logger }) => {
+  const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/featured/${input.YYYY}/${input.MM}/${input.DD}`
+
+  try {
+    const response = await axios.get(url)
+
+    if (response.status < 200 || response.status > 299) {
+      logger.forBot().error(`HTTP error! Status: ${response.status}`)
+    }
+
+    logger.forBot().info("Okay Response from Wiki. Pulled the following data:", response)
+
+    const data = response.data
+    const tfa = data.tfa
+    return tfa
+
+  } catch (error) {
+    logger.forBot().error("Error fetching featured content:", error)
   }
 }
 

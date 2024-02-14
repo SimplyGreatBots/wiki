@@ -43,6 +43,16 @@ export default new IntegrationDefinition({
           content: z.array(constants.tableRowSchema)
         }),
       },
+    },
+    getFeaturedArticle: {
+      title: 'Get Featured Article',
+      description: 'Returns the featured article of the day.',
+      input: {
+        schema: constants.featuredInputSchema
+      },
+      output: {
+        schema: constants.tfaSchema
+      }
     }
   }
 })
