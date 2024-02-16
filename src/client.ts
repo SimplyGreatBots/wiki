@@ -3,7 +3,7 @@ import * as constants from './const'
 import * as clientHelper from './clientHelper'
 import axios from 'axios'
 
-export const findPages: botpress.IntegrationProps['actions']['findPages'] = async ({ input, logger }) => {
+export const searchContent: botpress.IntegrationProps['actions']['searchContent'] = async ({ input, logger }) => {
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/page?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
   try {
     const response = await axios.get(url)
