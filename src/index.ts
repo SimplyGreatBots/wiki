@@ -1,5 +1,5 @@
 import * as botpress from '.botpress'
-import { findPages, getPage, getPageContent, getFeaturedArticle } from 'src/client'
+import { findPages, getPage, getPageContent, getFeaturedArticle, getOnThisDay } from 'src/client'
 
 export default new botpress.Integration({
   register: async () => { },
@@ -8,7 +8,8 @@ export default new botpress.Integration({
     findPages,
     getPage,
     getPageContent,
-    getFeaturedArticle
+    getFeaturedArticle,
+    getOnThisDay
   },
   channels: {},
   handler: async () => { },

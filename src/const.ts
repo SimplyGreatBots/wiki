@@ -192,3 +192,26 @@ export const tfaEmpty = {
   extract_html: '',
   normalizedtitle: '',
 }
+
+export const onThisDayInputSchema = z.object({
+  language: z.string().describe('Language code, e.g., ar (Arabic), en (English), es (Spanish).'),
+  type: z.string().describe('Type of event [all, events, births, deaths, holidays, selected]'),
+  month: z.string().regex(/^(0[1-9]|1[0-2])$/, 'Month of the year, 01 through 12').describe('Two digit Month (MM)'),
+  day: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, 'Day of the month, 01 through 31').describe('Two digit Day (DD)')
+})
+
+export const onThisDayOutputSchema = z.object({
+  events: z.array(z.any()).optional(),
+  births: z.array(z.any()).optional(),
+  deaths: z.array(z.any()).optional(),
+  holidays: z.array(z.any()).optional(),
+  selected: z.array(z.any()).optional()
+})
+
+export const onThisDayEmpty = {
+  events: [],
+  births: [],
+  deaths: [],
+  holidays: [],
+  selected: []
+}

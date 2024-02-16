@@ -103,3 +103,29 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
     return constants.tfaEmpty
   }
 }
+export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] = async ({ input, logger }) => {
+
+    const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/onthisday/${input.type}/${input.month}/${input.day}`
+
+    if (!input.day || !input.month || !input.language) {
+      logger.forBot().warn('Missing required input parameters')
+      return constants.onThisDayEmpty
+    }
+  
+    try {
+      const response = await axios.get(url)
+  
+      if (response.status < 200 || response.status > 299) {
+        logger.forBot().error(`HTTP error! Status: ${JSON.stringify(response.status)}`)
+        return constants.onThisDayEmpty
+      }
+  
+      const data = response.data
+      logger.forBot().info(`Success! Returned the following data: ${JSON.stringify(data)}`)
+      return data
+  
+    } catch (error) {
+      clientHelper.handleAxiosError(error, logger)
+      return { events: [] }
+    }
+}

@@ -53,6 +53,16 @@ export default new IntegrationDefinition({
       output: {
         schema: constants.tfaSchema
       }
-    }
+    },
+    getOnThisDay: {
+      title: 'Get On This Day',
+      description: 'Returns the events that occurred on a given day.',
+      input: {
+        schema: constants.onThisDayInputSchema
+      },
+      output: {
+        schema: constants.onThisDayOutputSchema
+      }
+    },
   }
 })
