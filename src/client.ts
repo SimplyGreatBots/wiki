@@ -9,16 +9,37 @@ export const searchContent: botpress.IntegrationProps['actions']['searchContent'
     const response = await axios.get(url)
     const rawData = response.data
 
-    const validationResult = constants.searchContentOutputSchema.safeParse(rawData)
+    const validationResult = constants.searchOutputSchema.safeParse(rawData)
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return constants.searchContentOutputSchema.parse({ pages: [] })
+      return constants.searchOutputSchema.parse({ pages: [] })
     }
     return validationResult.data
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
-    return constants.searchContentOutputSchema.parse({ pages: [] })
+    return constants.searchOutputSchema.parse({ pages: [] })
+  }
+}
+export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = async ({ input, logger }) => {
+  const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/title?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
+  logger.forBot().info('Search Title Initiated')
+  try {
+    const response = await axios.get(url)
+    const rawData = response.data
+
+    logger.forBot().info('Receieved Data: ', JSON.stringify(rawData))
+    const validationResult = constants.searchOutputSchema.safeParse(rawData)
+    if (!validationResult.success) {
+      logger.forBot().error('Validation Failed:', validationResult.error)
+      return constants.searchOutputSchema.parse({ pages: [] })
+    }
+    logger.forBot().info('Validation Passed:', validationResult.data)
+    return validationResult.data
+
+  } catch (error) {
+    clientHelper.handleAxiosError(error, logger)
+    return constants.searchOutputSchema.parse({ pages: [] })
   }
 }
 export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({ input, logger }) => {

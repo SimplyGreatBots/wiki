@@ -16,11 +16,21 @@ export default new IntegrationDefinition({
       title: 'Search Content',
       description: 'Searches wikipedia page content for given search terms.',
       input: {
-        schema: constants.searchContentInputSchema
+        schema: constants.searchInputSchema
       },
       output: {
-        schema: constants.searchContentOutputSchema
+        schema: constants.searchOutputSchema
       },
+    },
+    searchTitle: {
+    title: 'Search Title',
+      description: 'Searches wikipedia page titles for given search terms.',
+      input: {
+        schema: constants.searchInputSchema
+      },
+      output: {
+        schema: constants.searchOutputSchema
+      }
     },
     getPage: {
       title: 'Get Page',

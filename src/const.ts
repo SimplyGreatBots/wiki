@@ -23,13 +23,13 @@ export type TWikiParagraph = {
 }
 
 // Search Content
-export const searchContentInputSchema = z.object({
+export const searchInputSchema = z.object({
   project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
   language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
   q: z.string().describe('Search terms.'),
   limit: z.number().min(1).max(100).default(50).optional().describe('Maximum number of search results to return. Default is 50.')
 })
-export const searchContentOutputSchema = z.object({
+export const searchOutputSchema = z.object({
   pages: z.array(z.object({
     id: z.number(),
     key: z.string(),
