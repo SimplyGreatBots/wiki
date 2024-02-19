@@ -39,7 +39,7 @@ export default new IntegrationDefinition({
         schema: constants.pageInputSchema
       },
       output: {
-        schema: constants.pageOutputSchema
+        schema: constants.responseWrapperSchema
       }
     },
     getPageContent: {
@@ -49,9 +49,7 @@ export default new IntegrationDefinition({
         schema: constants.pageInputSchema
       },
       output: {
-        schema: z.object({
-          content: z.array(constants.tableRowSchema)
-        }),
+        schema: constants.responseWrapperSchema
       },
     },
     getFeaturedArticle: {
@@ -61,7 +59,7 @@ export default new IntegrationDefinition({
         schema: constants.featuredArticleInputSchema
       },
       output: {
-        schema: constants.featuredArticleOutputSchema
+        schema: constants.responseWrapperSchema
       }
     },
     getOnThisDay: {
@@ -71,7 +69,7 @@ export default new IntegrationDefinition({
         schema: constants.onThisDayInputSchema
       },
       output: {
-        schema: constants.onThisDayOutputSchema
+        schema: constants.responseWrapperSchema
       }
     },
   }

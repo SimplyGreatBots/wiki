@@ -25,7 +25,7 @@ export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = 
       return { success: false, log: validationError, data: constants.searchEmpty }
     }
 
-    return { success: true, log: 'Successfully pulled wiki pages from title', data: validationResult.data }
+    return { success: true, log: 'Successfully retrieved pages from title', data: validationResult.data }
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
@@ -51,7 +51,7 @@ export const searchContent: botpress.IntegrationProps['actions']['searchContent'
       return { success: false, log: validationError, data: constants.searchEmpty }
     }
 
-    return { success: true, log: 'Successfully pulled wiki pages from content', data: validationResult.data}
+    return { success: true, log: 'Successfully retrieved pages from content', data: validationResult.data}
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
@@ -63,6 +63,11 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
 
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/page/${input.title}/bare`
 
+  if (!input.project || !input.language || !input.title) {
+    logger.forBot().error(paramsError)
+    return { success: false, log: paramsError, data: constants.pageEmpty }
+  }
+
   try {
     const response = await axios.get(url)
     const rawData = response.data
@@ -71,20 +76,20 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
 
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return constants.pageEmpty
+      return { success: false, log: validationError, data: constants.pageEmpty }
     }
-    return validationResult.data
+    return { success: true, log: 'Sucessully retrieved page from Title.', data: validationResult.data }
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
-    return constants.pageEmpty
+    return { success: false, log: axiosError, data: constants.pageEmpty }
     }
 }
 export const getPageContent: botpress.IntegrationProps['actions']['getPageContent'] = async ({ input, logger }) => {
 
   if (!input.project || !input.language || !input.title) {
     logger.forBot().error('Error: Missing required input parameters')
-    return { content: [] }
+    return { success: false, log: paramsError, data: constants.pageContentEmpty }
   }
 
   const url = `https://${input.language}.${input.project}.org/w/api.php`;
@@ -100,11 +105,14 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
     const htmlContent = response.data.parse?.text['*'] || ''
 
     const content = clientHelper.processWikiContent(input.title, htmlContent)
-    return { content }
+
+    return {
+      success: true, log: 'Successfully retrieved content.', data: { content }
+    }
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
-    return { content: [] }
+    return { success: false, log: axiosError, data: constants.pageContentEmpty }
   }
 }
 export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeaturedArticle'] = async ({ input, logger }) => {
@@ -113,28 +121,25 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
 
   if (!input.day || !input.month || !input.year || !input.language) {
     logger.forBot().error('Missing required input parameters')
-    return constants.featuredArticleEmpty
+    return { success: false, log: paramsError, data: constants.featuredArticleEmpty }
   }
 
   try {
     const response = await axios.get(url)
+    const rawData = response.data
 
-    if (response.status < 200 || response.status > 299) {
-      logger.forBot().error(`HTTP error! Status: ${response.status}`)
-      return constants.featuredArticleEmpty
-    }
-
-    const validationResult = constants.featuredArticleOutputSchema.safeParse(response.data)
+    const validationResult = constants.featuredArticleOutputSchema.safeParse(rawData)
 
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return constants.featuredArticleEmpty
+      return { success: false, log: validationError, data: constants.featuredArticleEmpty }
     }
-    return validationResult.data
+
+    return { success: true, log: 'Successully retrieved Featured Article', data: validationResult.data }
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
-    return constants.featuredArticleEmpty
+    return { success: false, log: axiosError, data: constants.featuredArticleEmpty }
   }
 }
 export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] = async ({ input, logger }) => {
@@ -143,27 +148,23 @@ export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] 
 
     if (!input.day || !input.month || !input.language) {
       logger.forBot().error('Missing required input parameters')
-      return constants.onThisDayEmpty
+      return { success: false, log: paramsError, data: constants.onThisDayEmpty }
     }
   
     try {
       const response = await axios.get(url)
-  
-      if (response.status < 200 || response.status > 299) {
-        logger.forBot().error(`HTTP error! Status: ${JSON.stringify(response.status)}`)
-        return constants.onThisDayEmpty
-      }
+      const rawData = response.data
 
-      const validationResult = constants.onThisDayOutputSchema.safeParse(response.data)
+      const validationResult = constants.onThisDayOutputSchema.safeParse(rawData)
 
       if (!validationResult.success) {
         logger.forBot().error('Validation Failed:', validationResult.error)
-        return constants.onThisDayEmpty
+        return { success: false, log: validationError, data: constants.onThisDayEmpty }
       }
-      return validationResult.data
+      return { success: true, log: 'Successfully retrieved On This Day', data: validationResult.data }
   
     } catch (error) {
       clientHelper.handleAxiosError(error, logger)
-      return constants.onThisDayEmpty
+      return { success: false, log: axiosError, data: constants.onThisDayEmpty }
     }
 }

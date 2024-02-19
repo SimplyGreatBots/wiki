@@ -11,17 +11,6 @@ export type BotLogger = {
   }
 }
 
-export const tableRowSchema = z.object({
-  Page: z.string(),
-  Header: z.string(),
-  Content: z.string(),
-})
-export type TWikiParagraph = {
-  Page: string
-  Header: string
-  Content: string
-}
-
 // Search Schemas
 export const searchInputSchema = z.object({
   project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
@@ -86,6 +75,24 @@ export const pageEmpty = {
     title: null
   },
   html_url: ''
+}
+
+// Page Content Schemas
+export const tableRowSchema = z.object({
+  Page: z.string(),
+  Header: z.string(),
+  Content: z.string(),
+})
+export type TWikiParagraph = {
+  Page: string
+  Header: string
+  Content: string
+}
+export const pageContentOutputSchema = z.object({
+  content: z.array(tableRowSchema)
+})
+export const pageContentEmpty = {
+  content: []
 }
 
 // Featured Content Input Schema
@@ -220,7 +227,7 @@ export const onThisDayEmpty = {
 }
 
 // Response Wrapper
-export const dataSchema = z.union([searchOutputSchema, pageOutputSchema, featuredArticleOutputSchema, onThisDayOutputSchema])
+export const dataSchema = z.union([searchOutputSchema, pageOutputSchema, pageContentOutputSchema, featuredArticleOutputSchema, onThisDayOutputSchema])
 export const responseWrapperSchema = z.object({
   success: z.boolean(),
   log: z.string(),
