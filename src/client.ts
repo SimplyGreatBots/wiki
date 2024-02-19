@@ -28,7 +28,6 @@ export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = 
     const response = await axios.get(url)
     const rawData = response.data
 
-    logger.forBot().info('Receieved Data: ', JSON.stringify(rawData))
     const validationResult = constants.searchOutputSchema.safeParse(rawData)
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
@@ -66,7 +65,7 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
 export const getPageContent: botpress.IntegrationProps['actions']['getPageContent'] = async ({ input, logger }) => {
 
   if (!input.project || !input.language || !input.title) {
-    logger.forBot().error('Missing required input parameters')
+    logger.forBot().error('Error: Missing required input parameters')
     return { content: [] }
   }
 
@@ -80,10 +79,8 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
   try {
     const response = await axios.get(url, { params })
 
-    // Extract HTML content from the response
     const htmlContent = response.data.parse?.text['*'] || ''
 
-    // Process the HTML content to format it as described (rows with Page, Header, Paragraph)
     const content = clientHelper.processWikiContent(input.title, htmlContent)
     return { content }
 
@@ -97,7 +94,7 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
   const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/featured/${input.year}/${input.month}/${input.day}`
 
   if (!input.day || !input.month || !input.year || !input.language) {
-    logger.forBot().warn('Missing required input parameters')
+    logger.forBot().error('Missing required input parameters')
     return constants.tfaEmpty
   }
 
@@ -105,19 +102,17 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
     const response = await axios.get(url)
 
     if (response.status < 200 || response.status > 299) {
-      logger.forBot().warn(`HTTP error! Status: ${response.status}`)
+      logger.forBot().error(`HTTP error! Status: ${response.status}`)
       return constants.tfaEmpty
     }
 
-    const data = response.data
-    const tfa = data.tfa
+    const validationResult = constants.tfaSchema.safeParse(response.data)
 
-    if (!tfa) {
-      logger.forBot().warn("Call was successful but Wikipedia did not return a Featured Article.")
+    if (!validationResult.success) {
+      logger.forBot().error('Validation Failed:', validationResult.error)
       return constants.tfaEmpty
     }
-
-    return tfa
+    return validationResult.data
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
@@ -129,7 +124,7 @@ export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] 
     const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/onthisday/${input.type}/${input.month}/${input.day}`
 
     if (!input.day || !input.month || !input.language) {
-      logger.forBot().warn('Missing required input parameters')
+      logger.forBot().error('Missing required input parameters')
       return constants.onThisDayEmpty
     }
   
@@ -140,10 +135,14 @@ export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] 
         logger.forBot().error(`HTTP error! Status: ${JSON.stringify(response.status)}`)
         return constants.onThisDayEmpty
       }
-  
-      const data = response.data
-      logger.forBot().info(`Success! Returned the following data: ${JSON.stringify(data)}`)
-      return data
+
+      const validationResult = constants.onThisDayOutputSchema.safeParse(response.data)
+
+      if (!validationResult.success) {
+        logger.forBot().error('Validation Failed:', validationResult.error)
+        return constants.onThisDayEmpty
+      }
+      return validationResult.data
   
     } catch (error) {
       clientHelper.handleAxiosError(error, logger)

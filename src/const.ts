@@ -119,7 +119,7 @@ export const contentUrlsSchema = z.object({
   mobile: articleUrlSchema,
 })
 export const tfaSchema = z.object({
-  type: z.enum(['standard', 'disambiguation', 'no-extract', 'mainpage']),
+  type: z.string(),
   namespace: namespaceSchema,
   wikibase_item: z.string(),
   titles: titlesSchema,
