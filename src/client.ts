@@ -146,6 +146,6 @@ export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] 
   
     } catch (error) {
       clientHelper.handleAxiosError(error, logger)
-      return { events: [] }
+      return constants.onThisDayEmpty
     }
 }
