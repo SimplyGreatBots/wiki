@@ -22,7 +22,7 @@ export type TWikiParagraph = {
   Content: string
 }
 
-// Search Content
+// Search Schemas
 export const searchInputSchema = z.object({
   project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
   language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
@@ -47,8 +47,11 @@ export const searchOutputSchema = z.object({
     }).optional().nullable(),
   })),
 })
+export const searchEmpty = {
+  pages: []
+}
 
-// Page Content
+// Page Schemas
 export const pageInputSchema = z.object({
   project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
   language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
@@ -69,7 +72,7 @@ export const pageOutputSchema = z.object({
   }),
   html_url: z.string()
 })
-export const wikiPageEmpty = {
+export const pageEmpty = {
   id: 0,
   key: '',
   title: '',
@@ -85,15 +88,18 @@ export const wikiPageEmpty = {
   html_url: ''
 }
 
-// Featured Content
-export const featuredInputSchema = z.object({
+// Featured Content Input Schema
+const baseInputSchema = z.object({
   language: z.string().describe('Language code, e.g., ar (Arabic), en (English), es (Spanish).'),
-  year: z.string().regex(/^\d{4}$/, 'Four-digit year').describe('Four Digit Year YYYY'),
-  month: z.string().regex(/^(0[1-9]|1[0-2])$/, 'Month of the year, 01 through 12').describe('Two digit Month MM'),
-  day: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, 'Day of the month, 01 through 31').describe('Two digit Day DD')
+  month: z.string().regex(/^(0[1-9]|1[0-2])$/, 'Month of the year, 01 through 12').describe('Two digit Month (MM)'),
+  day: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, 'Day of the month, 01 through 31').describe('Two digit Day (DD)')
 })
 
-// Featured Article
+// Featured: Article
+export const featuredArticleInputSchema = baseInputSchema.extend({
+  year: z.string().regex(/^\d{4}$/, 'Four-digit year').describe('Four Digit Year YYYY')
+})
+
 export const namespaceSchema = z.object({
   id: z.number(),
   text: z.string(),
@@ -118,7 +124,7 @@ export const contentUrlsSchema = z.object({
   desktop: articleUrlSchema,
   mobile: articleUrlSchema,
 })
-export const tfaSchema = z.object({
+export const featuredArticleOutputSchema = z.object({
   type: z.string(),
   namespace: namespaceSchema,
   wikibase_item: z.string(),
@@ -138,7 +144,7 @@ export const tfaSchema = z.object({
   extract_html: z.string(),
   normalizedtitle: z.string()
 })
-export const tfaEmpty = {
+export const featuredArticleEmpty = {
   type: 'standard',
   namespace: {
     id: 0,
@@ -193,11 +199,9 @@ export const tfaEmpty = {
   normalizedtitle: '',
 }
 
-export const onThisDayInputSchema = z.object({
-  language: z.string().describe('Language code, e.g., ar (Arabic), en (English), es (Spanish).'),
-  type: z.string().describe('Type of event [all, events, births, deaths, holidays, selected]'),
-  month: z.string().regex(/^(0[1-9]|1[0-2])$/, 'Month of the year, 01 through 12').describe('Two digit Month (MM)'),
-  day: z.string().regex(/^(0[1-9]|[12][0-9]|3[01])$/, 'Day of the month, 01 through 31').describe('Two digit Day (DD)')
+// Featured: On This Day
+export const onThisDayInputSchema = baseInputSchema.extend({
+  type: z.string().describe('Type of event [all, events, births, deaths, holidays, selected]')
 })
 
 export const onThisDayOutputSchema = z.object({
@@ -207,7 +211,6 @@ export const onThisDayOutputSchema = z.object({
   holidays: z.array(z.any()).optional(),
   selected: z.array(z.any()).optional()
 })
-
 export const onThisDayEmpty = {
   events: [],
   births: [],
@@ -215,3 +218,11 @@ export const onThisDayEmpty = {
   holidays: [],
   selected: []
 }
+
+// Response Wrapper
+export const dataSchema = z.union([searchOutputSchema, pageOutputSchema, featuredArticleOutputSchema, onThisDayOutputSchema])
+export const responseWrapperSchema = z.object({
+  success: z.boolean(),
+  log: z.string(),
+  data: dataSchema
+})

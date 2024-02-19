@@ -12,6 +12,16 @@ export default new IntegrationDefinition({
   },
   channels: {},
   actions: {
+    searchTitle: {
+      title: 'Search Title',
+      description: 'Searches wikipedia page titles for given search terms.',
+      input: {
+        schema: constants.searchInputSchema
+      },
+      output: {
+        schema: constants.responseWrapperSchema
+      }
+    },
     searchContent: {
       title: 'Search Content',
       description: 'Searches wikipedia page content for given search terms.',
@@ -19,18 +29,8 @@ export default new IntegrationDefinition({
         schema: constants.searchInputSchema
       },
       output: {
-        schema: constants.searchOutputSchema
+        schema: constants.responseWrapperSchema
       },
-    },
-    searchTitle: {
-    title: 'Search Title',
-      description: 'Searches wikipedia page titles for given search terms.',
-      input: {
-        schema: constants.searchInputSchema
-      },
-      output: {
-        schema: constants.searchOutputSchema
-      }
     },
     getPage: {
       title: 'Get Page',
@@ -58,10 +58,10 @@ export default new IntegrationDefinition({
       title: 'Get Featured Article',
       description: 'Returns the featured article of a given day.',
       input: {
-        schema: constants.featuredInputSchema
+        schema: constants.featuredArticleInputSchema
       },
       output: {
-        schema: constants.tfaSchema
+        schema: constants.featuredArticleOutputSchema
       }
     },
     getOnThisDay: {

@@ -3,27 +3,18 @@ import * as constants from './const'
 import * as clientHelper from './clientHelper'
 import axios from 'axios'
 
-export const searchContent: botpress.IntegrationProps['actions']['searchContent'] = async ({ input, logger }) => {
-  const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/page?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
-  try {
-    const response = await axios.get(url)
-    const rawData = response.data
+const paramsError = 'Error! Missing required input parameters.'
+const validationError = 'Returned an unexpected result format. See integration logger in dashboard for more information'
+const axiosError = 'An error occurred while trying to fetch data from the Wikipedia API. See integration logger in dashboard for more information'
 
-    const validationResult = constants.searchOutputSchema.safeParse(rawData)
-    if (!validationResult.success) {
-      logger.forBot().error('Validation Failed:', validationResult.error)
-      return constants.searchOutputSchema.parse({ pages: [] })
-    }
-    return validationResult.data
-
-  } catch (error) {
-    clientHelper.handleAxiosError(error, logger)
-    return constants.searchOutputSchema.parse({ pages: [] })
-  }
-}
 export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = async ({ input, logger }) => {
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/title?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
-  logger.forBot().info('Search Title Initiated')
+
+  if (!input.project || !input.language || !input.limit || !input.q) {
+    logger.forBot().error(paramsError)
+    return { success: false, log: paramsError, data: constants.searchEmpty }
+  }
+
   try {
     const response = await axios.get(url)
     const rawData = response.data
@@ -31,16 +22,43 @@ export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = 
     const validationResult = constants.searchOutputSchema.safeParse(rawData)
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return constants.searchOutputSchema.parse({ pages: [] })
+      return { success: false, log: validationError, data: constants.searchEmpty }
     }
-    logger.forBot().info('Validation Passed:', validationResult.data)
-    return validationResult.data
+
+    return { success: true, log: 'Successfully pulled wiki pages from title', data: validationResult.data }
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
-    return constants.searchOutputSchema.parse({ pages: [] })
+    return { success: false, log: axiosError, data: constants.searchEmpty }
   }
 }
+
+export const searchContent: botpress.IntegrationProps['actions']['searchContent'] = async ({ input, logger }) => {
+  const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/page?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
+
+  if (!input.project || !input.language || !input.limit || !input.q) {
+    logger.forBot().error(paramsError)
+    return { success: false, log: paramsError, data: constants.searchEmpty }
+  }
+
+  try {
+    const response = await axios.get(url)
+    const rawData = response.data
+
+    const validationResult = constants.searchOutputSchema.safeParse(rawData)
+    if (!validationResult.success) {
+      logger.forBot().error('Validation Failed:', validationResult.error)
+      return { success: false, log: validationError, data: constants.searchEmpty }
+    }
+
+    return { success: true, log: 'Successfully pulled wiki pages from content', data: validationResult.data}
+
+  } catch (error) {
+    clientHelper.handleAxiosError(error, logger)
+    return { success: false, log: axiosError, data: constants.searchEmpty }
+  }
+}
+
 export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({ input, logger }) => {
 
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/page/${input.title}/bare`
@@ -53,13 +71,13 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
 
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return constants.wikiPageEmpty
+      return constants.pageEmpty
     }
     return validationResult.data
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
-    return constants.wikiPageEmpty
+    return constants.pageEmpty
     }
 }
 export const getPageContent: botpress.IntegrationProps['actions']['getPageContent'] = async ({ input, logger }) => {
@@ -95,7 +113,7 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
 
   if (!input.day || !input.month || !input.year || !input.language) {
     logger.forBot().error('Missing required input parameters')
-    return constants.tfaEmpty
+    return constants.featuredArticleEmpty
   }
 
   try {
@@ -103,20 +121,20 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
 
     if (response.status < 200 || response.status > 299) {
       logger.forBot().error(`HTTP error! Status: ${response.status}`)
-      return constants.tfaEmpty
+      return constants.featuredArticleEmpty
     }
 
-    const validationResult = constants.tfaSchema.safeParse(response.data)
+    const validationResult = constants.featuredArticleOutputSchema.safeParse(response.data)
 
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
-      return constants.tfaEmpty
+      return constants.featuredArticleEmpty
     }
     return validationResult.data
 
   } catch (error) {
     clientHelper.handleAxiosError(error, logger)
-    return constants.tfaEmpty
+    return constants.featuredArticleEmpty
   }
 }
 export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] = async ({ input, logger }) => {
