@@ -1,12 +1,12 @@
 import * as botpress from '.botpress'
-import { searchContent, getPage, getPageContent, getFeaturedArticle, getOnThisDay, searchTitle } from 'src/client'
+import { searchTitle, searchContent, getPage, getPageContent, getFeaturedArticle, getOnThisDay } from 'src/client'
 
 export default new botpress.Integration({
   register: async () => { },
   unregister: async () => { },
   actions: {
-    searchContent,
     searchTitle,
+    searchContent,
     getPage,
     getPageContent,
     getFeaturedArticle,

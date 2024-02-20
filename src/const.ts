@@ -226,10 +226,61 @@ export const onThisDayEmpty = {
   selected: []
 }
 
+// Error Schemas
+export const invalidSearchParamErrorSchema = z.object({
+  error: z.string(),
+  name: z.string(),
+  value: z.string(),
+  failureCode: z.string(),
+  failureData: z.object({
+    min: z.number().optional(),
+    curmax: z.number().optional(),
+    max: z.number().optional(),
+    highmax: z.number().optional(),
+  }).optional(),
+  messageTranslations: z.object({
+    en: z.string(),
+  }),
+  httpCode: z.number(),
+  httpReason: z.string(),
+})
+export const invalidFeedParamErrorSchema = z.object({
+  type: z.string(),
+  method: z.string(),
+  detail: z.string(),
+  uri: z.string()
+})
+export const invalidOnThisDayParamErrorSchema = z.object({
+  type: z.string(),
+  title: z.string(),
+  method: z.string(),
+  detail: z.string(),
+  uri: z.string()
+})
+export const noSearchResultsErrorSchema = z.object({
+  messageTranslations: z.object({
+    en: z.string(),
+  }),
+  httpCode: z.number(),
+  httpReason: z.string()
+})
+export const noFeedResultsErrorSchema = z.object({
+  type: z.string(),
+  title: z.string(),
+  method: z.string(),
+})
+export const unsupportedLangErrorSchema = z.object({
+  type: z.string(),
+  title: z.string(),
+  method: z.string(),
+  uri: z.string(),
+})
+export const errorSchemas = z.union([invalidSearchParamErrorSchema, invalidFeedParamErrorSchema, invalidOnThisDayParamErrorSchema, noSearchResultsErrorSchema, noFeedResultsErrorSchema, unsupportedLangErrorSchema])
+
 // Response Wrapper
-export const dataSchema = z.union([searchOutputSchema, pageOutputSchema, pageContentOutputSchema, featuredArticleOutputSchema, onThisDayOutputSchema])
+export const outputSchemas = z.union([searchOutputSchema, pageOutputSchema, pageContentOutputSchema, featuredArticleOutputSchema, onThisDayOutputSchema])
 export const responseWrapperSchema = z.object({
   success: z.boolean(),
   log: z.string(),
-  data: dataSchema
+  data: outputSchemas
 })

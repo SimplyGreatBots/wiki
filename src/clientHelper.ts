@@ -1,24 +1,28 @@
 ﻿import * as constants from './const'
-import axios from 'axios'
 import * as cheerio from 'cheerio'
 
-export const handleAxiosError = (error: unknown, logger: constants.BotLogger) => {
-    if (axios.isAxiosError(error)) {
-        if (error.response) {
-            // HTTP response status code is in the 2xx range
-            logger.forBot().error(`Error: ${error.response.status} ${error.response.statusText}`);
-        } else if (error.request) {
-            // The request was made but no response was received
-            logger.forBot().error('No response received', error.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            logger.forBot().error('Request Failed', error.message);
-        }
+export const handleWikiError = (error: any, logger: constants.BotLogger, emptyData: any) => {
+
+  // Handle known error
+  if (error.response && error.response.data) {
+    const parsedError = constants.errorSchemas.safeParse(error.response.data)
+
+    if (parsedError.success) {
+      const errorMessage = `Error: ${JSON.stringify(parsedError.data)}`
+      logger.forBot().error(errorMessage)
+      return { success: false, log: errorMessage, data: emptyData }
+
     } else {
-        // For non-Axios errors
-        logger.forBot().error('Operation Failed', error instanceof Error ? error.message : String(error));
+      logger.forBot().error(`Unhandled Axios Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`)
+      return { success: false, log: 'Unhandled error', data: emptyData }
     }
+  }
+
+  // Handle uknown error
+  logger.forBot().error(`Unhandled Error`)
+  return { success: false, log: 'Unhandled error', data: emptyData }
 }
+
 export const processWikiContent = (pageTitle: string, htmlContent: string): constants.TWikiParagraph[] => {
   const $ = cheerio.load(htmlContent)
   const content: constants.TWikiParagraph[] = []

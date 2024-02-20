@@ -5,7 +5,6 @@ import axios from 'axios'
 
 const paramsError = 'Error! Missing required input parameters.'
 const validationError = 'Returned an unexpected result format. See integration logger in dashboard for more information'
-const axiosError = 'An error occurred while trying to fetch data from the Wikipedia API. See integration logger in dashboard for more information'
 
 export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = async ({ input, logger }) => {
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/title?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
@@ -28,8 +27,7 @@ export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = 
     return { success: true, log: 'Successfully retrieved pages from title', data: validationResult.data }
 
   } catch (error) {
-    clientHelper.handleAxiosError(error, logger)
-    return { success: false, log: axiosError, data: constants.searchEmpty }
+    return clientHelper.handleWikiError(error, logger, constants.searchEmpty)
   }
 }
 
@@ -54,8 +52,7 @@ export const searchContent: botpress.IntegrationProps['actions']['searchContent'
     return { success: true, log: 'Successfully retrieved pages from content', data: validationResult.data}
 
   } catch (error) {
-    clientHelper.handleAxiosError(error, logger)
-    return { success: false, log: axiosError, data: constants.searchEmpty }
+    return clientHelper.handleWikiError(error, logger, constants.searchEmpty)
   }
 }
 
@@ -81,9 +78,8 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
     return { success: true, log: 'Sucessully retrieved page from Title.', data: validationResult.data }
 
   } catch (error) {
-    clientHelper.handleAxiosError(error, logger)
-    return { success: false, log: axiosError, data: constants.pageEmpty }
-    }
+    return clientHelper.handleWikiError(error, logger, constants.pageEmpty)
+  }
 }
 export const getPageContent: botpress.IntegrationProps['actions']['getPageContent'] = async ({ input, logger }) => {
 
@@ -111,8 +107,7 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
     }
 
   } catch (error) {
-    clientHelper.handleAxiosError(error, logger)
-    return { success: false, log: axiosError, data: constants.pageContentEmpty }
+    return clientHelper.handleWikiError(error, logger, constants.pageContentEmpty)
   }
 }
 export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeaturedArticle'] = async ({ input, logger }) => {
@@ -138,8 +133,7 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
     return { success: true, log: 'Successully retrieved Featured Article', data: validationResult.data }
 
   } catch (error) {
-    clientHelper.handleAxiosError(error, logger)
-    return { success: false, log: axiosError, data: constants.featuredArticleEmpty }
+    return clientHelper.handleWikiError(error, logger, constants.featuredArticleEmpty)
   }
 }
 export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] = async ({ input, logger }) => {
@@ -164,7 +158,6 @@ export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] 
       return { success: true, log: 'Successfully retrieved On This Day', data: validationResult.data }
   
     } catch (error) {
-      clientHelper.handleAxiosError(error, logger)
-      return { success: false, log: axiosError, data: constants.onThisDayEmpty }
+      return clientHelper.handleWikiError(error, logger, constants.onThisDayEmpty)
     }
 }
