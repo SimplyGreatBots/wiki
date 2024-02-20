@@ -78,6 +78,13 @@ export const pageEmpty = {
 }
 
 // Page Content Schemas
+export const pageContentOutputSchema = z.object({
+  parse: z.object({
+    title: z.string(), 
+    pageid: z.number(), 
+    text: z.string()
+  })
+})
 export const tableRowSchema = z.object({
   Page: z.string(),
   Header: z.string(),
@@ -88,9 +95,7 @@ export type TWikiParagraph = {
   Header: string
   Content: string
 }
-export const pageContentOutputSchema = z.object({
-  content: z.array(tableRowSchema)
-})
+
 export const pageContentEmpty = {
   content: []
 }
@@ -132,78 +137,82 @@ export const contentUrlsSchema = z.object({
   mobile: articleUrlSchema,
 })
 export const featuredArticleOutputSchema = z.object({
-  type: z.string(),
-  namespace: namespaceSchema,
-  wikibase_item: z.string(),
-  titles: titlesSchema,
-  pageid: z.number(),
-  thumbnail: imageSchema.optional(),
-  originalimage: imageSchema.optional(),
-  lang: z.string(),
-  dir: z.string(),
-  revision: z.string(),
-  tid: z.string(),
-  timestamp: z.string(),
-  description: z.string(),
-  description_source: z.string(),
-  content_urls: contentUrlsSchema,
-  extract: z.string(),
-  extract_html: z.string(),
-  normalizedtitle: z.string()
+  tfa: z.object({
+    type: z.string(),
+    namespace: namespaceSchema,
+    wikibase_item: z.string(),
+    titles: titlesSchema,
+    pageid: z.number(),
+    thumbnail: imageSchema.optional(),
+    originalimage: imageSchema.optional(),
+    lang: z.string(),
+    dir: z.string(),
+    revision: z.string(),
+    tid: z.string(),
+    timestamp: z.string(),
+    description: z.string(),
+    description_source: z.string(),
+    content_urls: contentUrlsSchema,
+    extract: z.string(),
+    extract_html: z.string(),
+    normalizedtitle: z.string()
+  })
 })
 export const featuredArticleEmpty = {
-  type: 'standard',
-  namespace: {
-    id: 0,
-    text: '',
-  },
-  wikibase_item: '',
-  articleUrlSchema: {
-  page: '',
-    revisions: '',
-    edit: '',
-    talk: '',
-  },
-  titles: {
-    canonical: '',
-    normalized: '',
-    display: '',
-  },
-  pageid: 0,
-  thumbnail: {
-    source: '',
-    width: 0,
-    height: 0,
-  },
-  originalimage: {
-    source: '',
-    width: 0,
-    height: 0,
-  },
-  lang: '',
-  dir: '',
-  revision: '',
-  tid: '',
-  timestamp: '',
-  description: '',
-  description_source: '',
-  content_urls: {
-    desktop: {
+  tfa: {
+    type: 'standard',
+    namespace: {
+      id: 0,
+      text: '',
+    },
+    wikibase_item: '',
+    articleUrlSchema: {
       page: '',
       revisions: '',
       edit: '',
       talk: '',
     },
-    mobile: {
-      page: '',
-      revisions: '',
-      edit: '',
-      talk: '',
+    titles: {
+      canonical: '',
+      normalized: '',
+      display: '',
     },
-  },
-  extract: '',
-  extract_html: '',
-  normalizedtitle: '',
+    pageid: 0,
+    thumbnail: {
+      source: '',
+      width: 0,
+      height: 0,
+    },
+    originalimage: {
+      source: '',
+      width: 0,
+      height: 0,
+    },
+    lang: '',
+    dir: '',
+    revision: '',
+    tid: '',
+    timestamp: '',
+    description: '',
+    description_source: '',
+    content_urls: {
+      desktop: {
+        page: '',
+        revisions: '',
+        edit: '',
+        talk: '',
+      },
+      mobile: {
+        page: '',
+        revisions: '',
+        edit: '',
+        talk: '',
+      },
+    },
+    extract: '',
+    extract_html: '',
+    normalizedtitle: '',
+  }
 }
 
 // Featured: On This Day
@@ -264,6 +273,12 @@ export const noSearchResultsErrorSchema = z.object({
   httpCode: z.number(),
   httpReason: z.string()
 })
+export const noContentResultsErrorSchema = z.object({
+  error: z.object({
+    code: z.string(),
+    info: z.string(),
+  })
+})
 export const noFeedResultsErrorSchema = z.object({
   type: z.string(),
   title: z.string(),
@@ -275,7 +290,7 @@ export const unsupportedLangErrorSchema = z.object({
   method: z.string(),
   uri: z.string(),
 })
-export const errorSchemas = z.union([invalidSearchParamErrorSchema, invalidFeedParamErrorSchema, invalidOnThisDayParamErrorSchema, noSearchResultsErrorSchema, noFeedResultsErrorSchema, unsupportedLangErrorSchema])
+export const errorSchemas = z.union([invalidSearchParamErrorSchema, invalidFeedParamErrorSchema, invalidOnThisDayParamErrorSchema, noSearchResultsErrorSchema, noContentResultsErrorSchema, noFeedResultsErrorSchema, unsupportedLangErrorSchema])
 
 // Response Wrapper
 export const outputSchemas = z.union([searchOutputSchema, pageOutputSchema, pageContentOutputSchema, featuredArticleOutputSchema, onThisDayOutputSchema])

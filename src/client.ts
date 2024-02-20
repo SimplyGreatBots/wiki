@@ -97,9 +97,23 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
 
   try {
     const response = await axios.get(url, { params })
+    const rawData = response.data
+
+    // Check if returned no content
+    const errorValidation = constants.noContentResultsErrorSchema.safeParse(rawData)
+    if (errorValidation.success) {
+      logger.forBot().warn('No content found for the given title')
+      return { success: false, log: 'No content found for the given title', data: constants.pageContentEmpty }
+    }
+
+    // Check if returned content is valid
+    const validationResult = constants.pageContentOutputSchema.safeParse(rawData)
+    if (!validationResult.success) {
+      logger.forBot().error('Validation Failed:', validationResult.error)
+      return { success: false, log: validationError, data: constants.pageContentEmpty }
+    }
 
     const htmlContent = response.data.parse?.text['*'] || ''
-
     const content = clientHelper.processWikiContent(input.title, htmlContent)
 
     return {
@@ -123,8 +137,9 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
     const response = await axios.get(url)
     const rawData = response.data
 
-    const validationResult = constants.featuredArticleOutputSchema.safeParse(rawData)
+    logger.forBot().debug('Featured Article:', rawData)
 
+    const validationResult = constants.featuredArticleOutputSchema.safeParse(rawData)
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
       return { success: false, log: validationError, data: constants.featuredArticleEmpty }
