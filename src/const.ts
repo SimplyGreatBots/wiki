@@ -78,12 +78,25 @@ export const pageEmpty = {
 }
 
 // Page Content Schemas
-export const pageContentOutputSchema = z.object({
+export const pageContentWikiSchema = z.object({
   parse: z.object({
     title: z.string(), 
-    pageid: z.number(), 
-    text: z.string()
+    pageid: z.number(),
+    revid: z.number(),
+    text: z.object({
+      '*': z.string()
+    }),
   })
+})
+export const pageContentOutputSchema = z.object({
+  title: z.string(),
+  pageid: z.number(),
+  revid: z.number(),
+  content: z.array(z.object({
+    Page: z.string(),
+    Header: z.string(),
+    Content: z.string(),
+  }))
 })
 export const tableRowSchema = z.object({
   Page: z.string(),

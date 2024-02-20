@@ -99,6 +99,8 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
     const response = await axios.get(url, { params })
     const rawData = response.data
 
+    logger.forBot().debug('Page Content:', rawData)
+
     // Check if returned no content
     const errorValidation = constants.noContentResultsErrorSchema.safeParse(rawData)
     if (errorValidation.success) {
@@ -107,18 +109,23 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
     }
 
     // Check if returned content is valid
-    const validationResult = constants.pageContentOutputSchema.safeParse(rawData)
+    const validationResult = constants.pageContentWikiSchema.safeParse(rawData)
     if (!validationResult.success) {
       logger.forBot().error('Validation Failed:', validationResult.error)
       return { success: false, log: validationError, data: constants.pageContentEmpty }
     }
 
-    const htmlContent = response.data.parse?.text['*'] || ''
-    const content = clientHelper.processWikiContent(input.title, htmlContent)
-
-    return {
-      success: true, log: 'Successfully retrieved content.', data: { content }
+    // Parse the HTML content for easier use
+    const htmlContent = response.data.parse.text['*'] || ''
+    const content  = clientHelper.processWikiContent(input.title, htmlContent)
+    const pageContentOutput = {
+      title: validationResult.data.parse.title,
+      pageid: validationResult.data.parse.pageid,
+      revid: validationResult.data.parse.revid,
+      content
     }
+
+    return { success: true, log: 'Successfully retrieved content.', data: pageContentOutput }
 
   } catch (error) {
     return clientHelper.handleWikiError(error, logger, constants.pageContentEmpty)
