@@ -10,7 +10,7 @@ export const searchTitle: botpress.IntegrationProps['actions']['searchTitle'] = 
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/title?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
 
   if (!input.project || !input.language || !input.limit || !input.q) {
-    logger.forBot().error(paramsError)
+    logger.forBot().warn(paramsError)
     return { success: false, log: paramsError, data: constants.searchEmpty }
   }
 
@@ -35,7 +35,7 @@ export const searchContent: botpress.IntegrationProps['actions']['searchContent'
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/search/page?q=${encodeURIComponent(input.q)}&limit=${input.limit}`
 
   if (!input.project || !input.language || !input.limit || !input.q) {
-    logger.forBot().error(paramsError)
+    logger.forBot().warn(paramsError)
     return { success: false, log: paramsError, data: constants.searchEmpty }
   }
 
@@ -61,7 +61,7 @@ export const getPage: botpress.IntegrationProps['actions']['getPage'] = async ({
   const url = `https://api.wikimedia.org/core/v1/${input.project}/${input.language}/page/${input.title}/bare`
 
   if (!input.project || !input.language || !input.title) {
-    logger.forBot().error(paramsError)
+    logger.forBot().warn(paramsError)
     return { success: false, log: paramsError, data: constants.pageEmpty }
   }
 
@@ -136,7 +136,7 @@ export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeatur
   const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/featured/${input.year}/${input.month}/${input.day}`
 
   if (!input.day || !input.month || !input.year || !input.language) {
-    logger.forBot().error('Missing required input parameters')
+    logger.forBot().warn('Missing required input parameters')
     return { success: false, log: paramsError, data: constants.featuredArticleEmpty }
   }
 
@@ -163,7 +163,7 @@ export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] 
     const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/onthisday/${input.type}/${input.month}/${input.day}`
 
     if (!input.day || !input.month || !input.language) {
-      logger.forBot().error('Missing required input parameters')
+      logger.forBot().warn('Missing required input parameters')
       return { success: false, log: paramsError, data: constants.onThisDayEmpty }
     }
   

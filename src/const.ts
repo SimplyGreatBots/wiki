@@ -15,8 +15,8 @@ export type BotLogger = {
 export const searchInputSchema = z.object({
   project: z.string().describe('Project name, e.g., wikipedia, commons, wiktionary.'),
   language: z.string().describe('Language code, e.g., en for English, es for Spanish. Note: Prohibited for commons and other multilingual projects.'),
-  q: z.string().describe('Search terms.'),
-  limit: z.number().min(1).max(100).default(50).optional().describe('Maximum number of search results to return. Default is 50.')
+  q: z.string().describe('Search term or phrase to be queried.This should reflect the specific information or topic you are seeking'),
+  limit: z.number().min(1).max(100).default(50).describe('Maximum number of search results to return. Default is 50.')
 })
 export const searchOutputSchema = z.object({
   pages: z.array(z.object({
