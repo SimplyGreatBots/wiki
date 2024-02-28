@@ -6,6 +6,7 @@ export default new IntegrationDefinition({
   name: constants.INTEGRATION_NAME,
   version: '0.2.0',
   description: 'This integration allows you to use Wikipedia.',
+  readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({})
