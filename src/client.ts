@@ -132,54 +132,106 @@ export const getPageContent: botpress.IntegrationProps['actions']['getPageConten
   }
 }
 export const getFeaturedArticle: botpress.IntegrationProps['actions']['getFeaturedArticle'] = async ({ input, logger }) => {
-
-  const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/featured/${input.year}/${input.month}/${input.day}`
+  const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/featured/${input.year}/${input.month}/${input.day}`;
 
   if (!input.day || !input.month || !input.year || !input.language) {
-    logger.forBot().warn('Missing required input parameters')
-    return { success: false, log: paramsError, data: constants.featuredArticleEmpty }
+    logger.forBot().warn('Missing required input parameters');
+    return { success: false, log: 'Missing required input parameters', data: {} };
   }
 
   try {
-    const response = await axios.get(url)
-    const rawData = response.data
+    const response = await axios.get(url);
+    const rawData = response.data;
 
-    logger.forBot().debug('Featured Article:', rawData)
+    const validationResult = constants.featuredArticleResponseSchema.safeParse(rawData);
 
-    const validationResult = constants.featuredArticleOutputSchema.safeParse(rawData)
     if (!validationResult.success) {
-      logger.forBot().error('Validation Failed:', validationResult.error)
-      return { success: false, log: validationError, data: constants.featuredArticleEmpty }
+      logger.forBot().error('Validation Failed:', validationResult.error);
+      return { success: false, log: 'Validation error', data: {} };
     }
 
-    return { success: true, log: 'Successully retrieved Featured Article', data: validationResult.data }
+    // Checking if `tfa` exists in the validated data
+    const tfa = validationResult.data.tfa
+    if (!tfa) {
+      logger.forBot().warn('No Featured Article Found.');
+      return { success: false, log: 'No Featured Article Found.', data: {} };
+    }
+
+    const simplifiedData = tfa ? {
+      pageId: tfa.pageid,
+      titles: tfa.titles,
+      originalImage: tfa.originalimage,
+      description: tfa.description,
+      link: tfa.content_urls.desktop.page,
+      extract: tfa.extract,
+    } : {}
+
+    return { success: true, log: 'Successfully retrieved Featured Article', data: simplifiedData };
 
   } catch (error) {
-    return clientHelper.handleWikiError(error, logger, constants.featuredArticleEmpty)
+    return clientHelper.handleWikiError(error, logger, constants.wikiArticleEmpty)
   }
 }
+
 export const getOnThisDay: botpress.IntegrationProps['actions']['getOnThisDay'] = async ({ input, logger }) => {
+  const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/onthisday/${input.type}/${input.month}/${input.day}`;
 
-    const url = `https://api.wikimedia.org/feed/v1/wikipedia/${input.language}/onthisday/${input.type}/${input.month}/${input.day}`
+  if (!input.day || !input.month || !input.language) {
+    logger.forBot().warn('Missing required input parameters');
+    return { success: false, log: 'Missing required input parameters', data: {} };
+  }
 
-    if (!input.day || !input.month || !input.language) {
-      logger.forBot().warn('Missing required input parameters')
-      return { success: false, log: paramsError, data: constants.onThisDayEmpty }
+  try {
+    const response = await axios.get(url);
+    const rawData = response.data;
+
+    const validationResult = constants.onThisDayOutputSchema.safeParse(rawData);
+
+    if (!validationResult.success) {
+      logger.forBot().error('Validation Failed:', validationResult.error);
+      return { success: false, log: 'Validation error', data: {} };
     }
-  
-    try {
-      const response = await axios.get(url)
-      const rawData = response.data
 
-      const validationResult = constants.onThisDayOutputSchema.safeParse(rawData)
+    const limitedResults: { [key: string]: any[] | undefined } = { ...validationResult.data };
 
-      if (!validationResult.success) {
-        logger.forBot().error('Validation Failed:', validationResult.error)
-        return { success: false, log: validationError, data: constants.onThisDayEmpty }
+    const categories: Array<keyof typeof limitedResults> = ['selected', 'births', 'deaths', 'holidays', 'events'];
+    categories.forEach((category) => {
+      const categoryData = limitedResults[category];
+      if (categoryData) {
+        limitedResults[category] = categoryData.slice(0, 9).map((event) => {
+          // Initialize an empty/default page object
+          let page: Partial<constants.WikiArticle> = constants.wikiArticleEmpty
+
+          if (event.pages && event.pages.length > 0) {
+            const firstPage = event.pages[0]
+            page = {
+              pageId: firstPage.pageid,
+              titles: firstPage.titles,
+              originalImage: firstPage.originalimage ? {
+                source: firstPage.originalimage.source,
+                width: firstPage.originalimage.width,
+                height: firstPage.originalimage.height,
+              } : { source: '', width: '', height: ''},
+              description: firstPage.description,
+              link: firstPage.content_urls.desktop.page,
+              extract: firstPage.extract,
+            };
+          }
+
+          return {
+            text: event.text,
+            year: event.year,
+            page,
+          };
+        });
       }
-      return { success: true, log: 'Successfully retrieved On This Day', data: validationResult.data }
-  
-    } catch (error) {
-      return clientHelper.handleWikiError(error, logger, constants.onThisDayEmpty)
-    }
-}
+    });
+
+    return { success: true, log: 'Successfully retrieved On This Day', data: limitedResults };
+
+  } catch (error) {
+    // Handle API or network errors
+    return clientHelper.handleWikiError(error, logger, {});
+  }
+};
+

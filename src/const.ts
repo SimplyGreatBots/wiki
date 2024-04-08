@@ -149,7 +149,7 @@ export const contentUrlsSchema = z.object({
   desktop: articleUrlSchema,
   mobile: articleUrlSchema,
 })
-export const featuredArticleOutputSchema = z.object({
+export const featuredArticleResponseSchema = z.object({
   tfa: z.object({
     type: z.string(),
     namespace: namespaceSchema,
@@ -169,64 +169,8 @@ export const featuredArticleOutputSchema = z.object({
     extract: z.string(),
     extract_html: z.string(),
     normalizedtitle: z.string()
-  })
+  }).optional()
 })
-export const featuredArticleEmpty = {
-  tfa: {
-    type: 'standard',
-    namespace: {
-      id: 0,
-      text: '',
-    },
-    wikibase_item: '',
-    articleUrlSchema: {
-      page: '',
-      revisions: '',
-      edit: '',
-      talk: '',
-    },
-    titles: {
-      canonical: '',
-      normalized: '',
-      display: '',
-    },
-    pageid: 0,
-    thumbnail: {
-      source: '',
-      width: 0,
-      height: 0,
-    },
-    originalimage: {
-      source: '',
-      width: 0,
-      height: 0,
-    },
-    lang: '',
-    dir: '',
-    revision: '',
-    tid: '',
-    timestamp: '',
-    description: '',
-    description_source: '',
-    content_urls: {
-      desktop: {
-        page: '',
-        revisions: '',
-        edit: '',
-        talk: '',
-      },
-      mobile: {
-        page: '',
-        revisions: '',
-        edit: '',
-        talk: '',
-      },
-    },
-    extract: '',
-    extract_html: '',
-    normalizedtitle: '',
-  }
-}
 
 // Featured: On This Day
 export const onThisDayInputSchema = baseInputSchema.extend({
@@ -247,6 +191,33 @@ export const onThisDayEmpty = {
   holidays: [],
   selected: []
 }
+
+export const wikiArticle = z.object({
+  pageId: z.number(),
+  titles: titlesSchema,
+  originalImage: imageSchema,
+  description: z.string(),
+  link: z.string().url(),
+  extract: z.string(),
+})
+export const wikiArticleEmpty = {
+  pageId: 0,
+  titles: {
+    canonical: '',
+    normalized: '',
+    display: '',
+  },
+  originalImage: {
+    source: '',
+    width: 0,
+    height: 0,
+  },
+  description: '',
+  link: '',
+  extract: ''
+}
+
+export type WikiArticle = z.infer<typeof wikiArticle>;
 
 // Error Schemas
 export const invalidSearchParamErrorSchema = z.object({
@@ -306,7 +277,7 @@ export const unsupportedLangErrorSchema = z.object({
 export const errorSchemas = z.union([invalidSearchParamErrorSchema, invalidFeedParamErrorSchema, invalidOnThisDayParamErrorSchema, noSearchResultsErrorSchema, noContentResultsErrorSchema, noFeedResultsErrorSchema, unsupportedLangErrorSchema])
 
 // Response Wrapper
-export const outputSchemas = z.union([searchOutputSchema, pageOutputSchema, pageContentOutputSchema, featuredArticleOutputSchema, onThisDayOutputSchema])
+export const outputSchemas = z.union([searchOutputSchema, pageOutputSchema, pageContentOutputSchema, wikiArticle, onThisDayOutputSchema])
 export const responseWrapperSchema = z.object({
   success: z.boolean(),
   log: z.string(),
